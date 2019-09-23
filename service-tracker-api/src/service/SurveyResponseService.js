@@ -99,53 +99,115 @@ class SurveyResponseService {
       params = null;
     }
   }
-  async createSurveyResponse(data){
-    let respondentId,
-        surveyResponse,
-        surveyAnswers,
-        surveyComment;
-    try{
-      respondentId = data.respondentId;
-    }catch(e){
-    
-    }finally{
-    
-    }
-  }
   async insertSurveyResponse(data){
-    let qry,
+    let serviceTrackerDbProxy,
+        qry,
         params,
         response;
     try{
-    
+      serviceTrackerDbProxy = new ServiceTrackerDbProxy();
+      qry = `INSERT INTO [NPS_WAV].[T_SURVEY_RESPONSE]([respondentId], [surveyId], [workorder], [completeDateTime]) OUTPUT INSERTED.* VALUES(@respondentId, @surveyId, @workorder, @completeDateTime)`;
+      params = [
+        {
+          name: 'respondentId',
+          type: TYPES.BigInt(),
+          value: data.respondentId
+        },
+        {
+          name: 'surveyId',
+          type: TYPES.BigInt(),
+          value: data.surveyId
+        },
+        {
+          name: 'workorder',
+          type: TYPES.BigInt(),
+          value: data.workorder
+        },
+        {
+          name: 'completeDateTime',
+          type: TYPES.DateTime(),
+          value: data.completeDateTime
+        }
+      ];
+      response = await serviceTrackerDbProxy.doQuery(qry, params);
+
+      return response;
     }catch(e){
-    
+      throw e;
     }finally{
-    
+      serviceTrackerDbProxy = null;
+      qry = null;
+      params = null;
+      response = null;
     }
   }
   async insertSurveyAnswer(data){
-    let qry,
+    let serviceTrackerDbProxy,
+        qry,
         params,
         response;
     try{
-    
+      serviceTrackerDbProxy = new ServiceTrackerDbProxy();
+      qry = `INSERT INTO [NPS_WAV].[T_SURVEY_ANSWER]([respondentId], [questionId], [optionId]) VALUES(@respondentId, @questionId, @optionId)`;
+      params = [
+        {
+          name: 'respondentId',
+          type: TYPES.BigInt(),
+          value: data.respondentId
+        },
+        {
+          name: 'questionId',
+          type: TYPES.BigInt(),
+          value: data.questionId
+        },
+        {
+          name: 'optionId',
+          type: TYPES.BigInt(),
+          value: data.optionId
+        }
+      ];
+      response = await serviceTrackerDbProxy.doQuery(qry, params);
+
+      return response;
     }catch(e){
-    
+      throw e;
     }finally{
-    
+      serviceTrackerDbProxy = null;
+      qry = null;
+      params = null;
+      response = null;
     }
   }
   async insertSurveyComment(data){
-    let qry,
+    let serviceTrackerDbProxy,
+        qry,
         params,
         response;
     try{
-    
+      serviceTrackerDbProxy = new ServiceTrackerDbProxy();
+      qry = `INSERT INTO [NPS_WAV].[T_SURVEY_COMMENT]([respondentId], [comment]) VALUES(@respondentId, @comment)`;
+      params = [
+        {
+          name: 'respondentId',
+          type: TYPES.BigInt(),
+          value: data.respondentId
+        },
+        {
+          name: 'comment',
+          type: TYPES.VarChar(8000),
+          value: data.comment
+        }
+      ];
+      response = await serviceTrackerDbProxy.doQuery(qry, params);
+
+      return response;
     }catch(e){
-    
+      throw e;
     }finally{
-    
+      serviceTrackerDbProxy = null;
+      qry = null;
+      params = null;
+      response = null;
     }
   }
 }

@@ -184,18 +184,81 @@ class IssueService {
       params = null;
     }
   }
-  async updateIssue(){
+  async updateIssue(data){
     let serviceTrackerDbProxy,
         response,
         qry,
         where,
         params;
     try{
-      params = [];
-      where = [];
+
+
       serviceTrackerDbProxy = new ServiceTrackerDbProxy();
-      qry = ``;
-    
+      qry = `UPDATE [NPS_WAV].[T_ISSUE] SET [statusId]=@statusId, [statusDate]=GETDATE(), [statusUser]=@statusUser WHERE issueId = @issueId`;
+
+      params = [
+        {
+          name:'issueId',
+          type: TYPES.BigInt(),
+          value: data
+        },
+        {
+          name: 'statusId',
+          type: TYPES.BigInt(),
+          value: data.statusId
+        },
+        {
+          name: 'statusUser',
+          type: TYPES.BigInt(),
+          value: data.statusUser
+        }
+      ];
+
+      response = await serviceTrackerDbProxy.doQuery(qry, params);
+
+      return response;
+    }catch(e){
+      throw e;
+    }finally{
+      serviceTrackerDbProxy = null;
+      response = null;
+      qry = null;
+      where = null;
+      params = null;
+    }
+  }
+  async createIssueComment(data){
+    let serviceTrackerDbProxy,
+        response,
+        qry,
+        where,
+        params;
+    try{
+
+      serviceTrackerDbProxy = new ServiceTrackerDbProxy();
+      qry = `INSERT INTO [NPS_WAV].[T_ISS_COMMENT]([issueComment], [issueCommentDate], [issueCommentUser], [issueId]) OUTPUT INSERTED.* VALUES(@issueComment, GETDATE(), @issueCommentUser, @issueId)`;
+
+      params = [
+        {
+          name:'issueComment',
+          type: TYPES.VarChar(4000),
+          value: data.issueComment
+        },
+        {
+          name:'issueId',
+          type: TYPES.BigInt(),
+          value: data.issueId
+        },
+        {
+          name:'issueCommentUser',
+          type: TYPES.BigInt(),
+          value: data.issueCommentUser
+        }
+      ];
+
+      response = await serviceTrackerDbProxy.doQuery(qry, params);
+
+      return response;
     
     }catch(e){
       throw e;
@@ -207,19 +270,28 @@ class IssueService {
       params = null;
     }
   }
-  async createIssueComment(){
+  async getIssueTags(issueId){
     let serviceTrackerDbProxy,
         response,
         qry,
         where,
         params;
     try{
-      params = [];
-      where = [];
+
       serviceTrackerDbProxy = new ServiceTrackerDbProxy();
-      qry = ``;
-    
-    
+      qry = `SELECT TLS.tagId issueTagId, TLS.tagId, ISS.issueId, TLS.tagName, TLS.tagTypeId, TYP.tagType, ISS.issueAreaId, CAST(CASE WHEN ITG.issueId IS NULL THEN 0 ELSE 1 END as BIT) isSelected FROM NPS_WAV.T_ISSUE ISS CROSS JOIN NPS_WAV.T_TAG_LIST TLS LEFT OUTER JOIN NPS_WAV.T_TAG_LIST_TYP TYP on TLS.tagTypeId = TYP.tagTypeId LEFT OUTER JOIN NPS_WAV.T_TAG_AREA_MAP TAM on TLS.tagTypeId = TAM.tagTypeId AND ISS.issueAreaId = TAM.areaTypeId LEFT OUTER JOIN NPS_WAV.T_ISS_TAG ITG on ISS.issueId = ITG.issueId AND TLS.tagId = ITG.tagId WHERE ISS.issueId = @issueId`;
+
+      params = [
+        {
+          name: 'issueId',
+          type: TYPES.BigInt(),
+          value: issueId
+        }
+      ]
+
+      response = await serviceTrackerDbProxy.doQuery(qry, params);
+
+      return response;
     }catch(e){
       throw e;
     }finally{
@@ -230,19 +302,31 @@ class IssueService {
       params = null;
     }
   }
-  async getIssueTags(){
+  async addTagToIssue(issueId, tagId){
     let serviceTrackerDbProxy,
         response,
         qry,
         where,
         params;
     try{
-      params = [];
-      where = [];
+
       serviceTrackerDbProxy = new ServiceTrackerDbProxy();
-      qry = ``;
-    
-    
+      qry = `INSERT INTO [NPS_WAV].[T_ISS_TAG]([issueId], [tagId]) VALUES(@issueId, @tagId)`;
+      params = [
+        {
+          name: 'issueId',
+          type: TYPES.BigInt(),
+          value: issueId
+        },
+        {
+          name: 'tagId',
+          type: TYPES.BigInt(),
+          value: tagId
+        }
+      ];
+      response = await serviceTrackerDbProxy.doQuery(qry, params);
+
+      return response;
     }catch(e){
       throw e;
     }finally{
@@ -253,19 +337,31 @@ class IssueService {
       params = null;
     }
   }
-  async updateIssueTags(){
+  async deleteTagFromIssue(issueId, tagId){
     let serviceTrackerDbProxy,
         response,
         qry,
         where,
         params;
     try{
-      params = [];
-      where = [];
+
       serviceTrackerDbProxy = new ServiceTrackerDbProxy();
-      qry = ``;
-    
-    
+      qry = `DELETE FROM [NPS_WAV].[T_ISS_TAG] WHERE issueId = @issueId AND tagId = @tagId`;
+      params = [
+        {
+          name: 'issueId',
+          type: TYPES.BigInt(),
+          value: issueId
+        },
+        {
+          name: 'tagId',
+          type: TYPES.BigInt(),
+          value: tagId
+        }
+      ];
+      response = await serviceTrackerDbProxy.doQuery(qry, params);
+
+      return response;
     }catch(e){
       throw e;
     }finally{
